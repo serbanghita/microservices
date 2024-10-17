@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ApiClient {
+  id Int @id @default(autoincrement())
+  organisationId Int
+  username String @unique
+  password String
+  isActive Boolean @default(true)
+
+  ApiClientAssignedScopes ApiClientAssignedScopes[]
+
+  Token Token[]
+}
+
+model Scope {
+  id Int @id @default(autoincrement())
+  name String @unique
+  description String
+  isActive Boolean @default(true)
+
+  ApiClientAssignedScopes ApiClientAssignedScopes[]
+}
+
+model ApiClientAssignedScopes {
+  id Int @id @default(autoincrement())
+
+  clientId Int
+  client ApiClient @relation(fields: [clientId], references: [id], map: "clientId")
+
+  scopeId Int
+  scope Scope @relation(fields: [scopeId], references: [id], map: "scopeId")
+
+  claimId Int
+  claim Claim @relation(fields: [clientId], references: [id], map: "claimId")
+
+  @@unique([clientId, scopeId, claimId])
+}
+
+model Claim {
+  id Int @id @default(autoincrement())
+
+  key String
+  value String
+  type ClaimType
+
+  ApiClientAssignedScopes ApiClientAssignedScopes[]
+}
+
+enum ClaimType {
+  STRING
+  INTEGER
+  BOOLEAN
+}
+
+model Token {
+  id Int @id @default(autoincrement())
+  type TokenType @default(ACCESS_TOKEN)
+  clientId Int
+  client ApiClient @relation(fields: [clientId], references: [id])
+  content String
+  createdAt DateTime
+  isRevoked Boolean @default(false)
+  revokedAt DateTime?
+}
+
+enum TokenType {
+  ACCESS_TOKEN
+  REFRESH_TOKEN
+}
