@@ -14,22 +14,24 @@ datasource db {
 }
 
 model ApiClient {
-  id Int @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   organisationId Int
-  username String @unique
-  password String
-  isActive Boolean @default(true)
+  username       String   @unique
+  password       String
+  isActive       Boolean  @default(true)
+  createdAt      DateTime
 
   ApiClientAssignedScopes ApiClientAssignedScopes[]
 
   Token Token[]
+  Grant Grant[]
 }
 
 model Scope {
-  id Int @id @default(autoincrement())
-  name String @unique
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   description String
-  isActive Boolean @default(true)
+  isActive    Boolean @default(true)
 
   ApiClientAssignedScopes ApiClientAssignedScopes[]
 }
@@ -38,13 +40,13 @@ model ApiClientAssignedScopes {
   id Int @id @default(autoincrement())
 
   clientId Int
-  client ApiClient @relation(fields: [clientId], references: [id], map: "clientId")
+  client   ApiClient @relation(fields: [clientId], references: [id], map: "clientId")
 
   scopeId Int
-  scope Scope @relation(fields: [scopeId], references: [id], map: "scopeId")
+  scope   Scope @relation(fields: [scopeId], references: [id], map: "scopeId")
 
   claimId Int
-  claim Claim @relation(fields: [clientId], references: [id], map: "claimId")
+  claim   Claim @relation(fields: [clientId], references: [id], map: "claimId")
 
   @@unique([clientId, scopeId, claimId])
 }
@@ -52,9 +54,9 @@ model ApiClientAssignedScopes {
 model Claim {
   id Int @id @default(autoincrement())
 
-  key String
+  key   String
   value String
-  type ClaimType
+  type  ClaimType
 
   ApiClientAssignedScopes ApiClientAssignedScopes[]
 }
@@ -65,14 +67,30 @@ enum ClaimType {
   BOOLEAN
 }
 
+model Grant {
+  id          Int       @id @default(autoincrement())
+  apiClientId Int
+  apiClient   ApiClient @relation(fields: [apiClientId], references: [id], map: "apiClientId")
+  claims      String
+  createdAt   DateTime
+  expiresAt   DateTime
+  isRevoked   Boolean   @default(false)
+  revokedAt   DateTime?
+
+  Token Token[]
+}
+
 model Token {
-  id Int @id @default(autoincrement())
-  type TokenType @default(ACCESS_TOKEN)
-  clientId Int
-  client ApiClient @relation(fields: [clientId], references: [id])
-  content String
+  id        Int       @id @default(autoincrement())
+  grantId   Int
+  grant     Grant     @relation(fields: [grantId], references: [id], map: "grantId")
+  jwtId     String
+  type      TokenType @default(ACCESS_TOKEN)
+  clientId  Int
+  client    ApiClient @relation(fields: [clientId], references: [id])
+  content   String
   createdAt DateTime
-  isRevoked Boolean @default(false)
+  isRevoked Boolean   @default(false)
   revokedAt DateTime?
 }
 

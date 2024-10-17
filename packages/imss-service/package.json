@@ -1,0 +1,24 @@
+{
+  "name": "imss-service",
+  "version": "1.0.0",
+  "description": "> UI where you can manage the API Clients & scopes",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild ./src/index.jsx --bundle --outfile=public/bundle.js",
+    "dev": "esbuild ./src/index.jsx --bundle --outfile=public/bundle.js --servedir=public --watch --serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  }
+}
